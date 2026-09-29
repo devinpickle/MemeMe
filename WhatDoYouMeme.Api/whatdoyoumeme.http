@@ -1,0 +1,23 @@
+POST http://localhost:5002/games
+Content-Type: application/json
+
+{
+    "HostName": "TestHost"
+}
+
+###
+
+POST http://localhost:5002/games/VCPP/join
+Content-Type: application/json
+
+{
+    "Name": "Test Player 2"
+}
+
+###
+
+GET http://localhost:5002/games/VCPP
+
+###
+
+GET http://localhost:5002/games/VCPP/images

@@ -1,0 +1,32 @@
+# .NET
+**/bin/
+**/obj/
+
+# Node / frontend
+**/node_modules/
+**/dist/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Uploaded files
+**/Assets/Uploads/
+
+# Six Labors license
+sixlabors.lic
+
+# IDE files
+.vs/
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
