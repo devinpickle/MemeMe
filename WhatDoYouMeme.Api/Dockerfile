@@ -17,6 +17,4 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:$PORT
-
-ENTRYPOINT ["dotnet", "WhatDoYouMeme.Api.dll"]
+ENTRYPOINT ["sh", "-c", "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-10000} exec dotnet WhatDoYouMeme.Api.dll"]

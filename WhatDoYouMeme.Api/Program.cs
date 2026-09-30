@@ -78,4 +78,6 @@ app.MapHub<GameHub>("/gamehub");
 
 app.MigrateDb();
 
+app.MapGet("/", () => "API is running");
+
 app.Run();
