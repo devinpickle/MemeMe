@@ -7,13 +7,10 @@ RUN dotnet restore "WhatDoYouMeme.Api/WhatDoYouMeme.Api.csproj"
 COPY . .
 WORKDIR "/src/WhatDoYouMeme.Api"
 
-ARG SIXLABORS_LICENSE_KEY
-
 RUN dotnet publish "WhatDoYouMeme.Api.csproj" \
     -c Release \
     -o /app/publish \
-    --no-restore \
-    -p:SixLaborsLicenseKey="$SIXLABORS_LICENSE_KEY"
+    --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app

@@ -9,8 +9,7 @@ using System.Globalization;
 using WhatDoYouMeme.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Image = WhatDoYouMeme.Api.Models.Image;
-using ImageSharpImage = SixLabors.ImageSharp.Image;
-using SixLabors.ImageSharp;
+using SkiaSharp;
 
 namespace WhatDoYouMeme.Api.Endpoints;
 
@@ -830,26 +829,37 @@ public static class GamesEndpoints
 
         try
         {
-            using var image = await ImageSharpImage.LoadAsync(stream);
+            using var data = SKData.Create(stream);
+            using var codec = SKCodec.Create(data);
 
-            if (image.Width > 4096 || image.Height > 4096)
+            if (codec == null)
             {
                 return null;
             }
 
-            return image.Metadata.DecodedImageFormat?.Name switch
+            var info = codec.Info;
+
+            if (info.Width > 4096 || info.Height > 4096)
             {
-                "JPEG" => ".jpg",
-                "PNG" => ".png",
-                "WEBP" => ".webp",
+                return null;
+            }
+
+            using var bitmap = SKBitmap.Decode(data);
+
+            if (bitmap == null)
+            {
+                return null;
+            }
+
+            return codec.EncodedFormat switch
+            {
+                SKEncodedImageFormat.Jpeg => ".jpg",
+                SKEncodedImageFormat.Png => ".png",
+                SKEncodedImageFormat.Webp => ".webp",
                 _ => null
             };
         }
-        catch (UnknownImageFormatException)
-        {
-            return null;
-        }
-        catch (InvalidImageContentException)
+        catch
         {
             return null;
         }
