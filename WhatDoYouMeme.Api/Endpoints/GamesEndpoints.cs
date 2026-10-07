@@ -859,8 +859,9 @@ public static class GamesEndpoints
                 _ => null
             };
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Image validation failed for {file.FileName}: {ex}");
             return null;
         }
     }
