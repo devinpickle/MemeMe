@@ -32,19 +32,59 @@ export async function getLobby(joinCode: string): Promise<GameLobbySummaryDto> {
     return response.json();
 }
 
+async function shrinkImage(file: File, maxSize = 1280, quality = 0.8): Promise<File> {
+    // Already small, no need to re-encode
+    if (file.size < 300 * 1024) {
+        return file;
+    }
+
+    try {
+        const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+
+        const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
+        const width = Math.round(bitmap.width * scale);
+        const height = Math.round(bitmap.height * scale);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+        if (!context) {
+            bitmap.close();
+            return file;
+        }
+
+        context.drawImage(bitmap, 0, 0, width, height);
+        bitmap.close();
+
+        const blob = await new Promise<Blob | null>(resolve =>
+            canvas.toBlob(resolve, "image/jpeg", quality)
+        );
+
+        if (!blob) {
+            return file;
+        }
+
+        return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+    } catch {
+        // If the browser can't decode it, fall back to the original file
+        return file;
+    }
+}
+
 export async function uploadImages(joinCode: string, files: File[], accessToken: string): Promise<void> {
     const formData = new FormData();
 
-    files.forEach(file => {
-        formData.append("files", file);
-    });
+    for (const file of files) {
+        formData.append("files", await shrinkImage(file));
+    }
 
     await apiFetch(`/games/${joinCode}/images`, {
         method: "POST",
         body: formData,
         accessToken: accessToken,
     });
-
 }
 
 export async function startGame(joinCode: string): Promise<GameRoundStartDto> {
